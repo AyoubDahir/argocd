@@ -34,11 +34,11 @@ spec:
         - name: DB_PORT
           value: "3306"
         - name: REDIS_CACHE
-          value: {{ .Values.redis.host | default "redis" }}:6379/0
+          value: redis://{{ .Values.redis.host | default "redis" }}:6379/0
         - name: REDIS_QUEUE
-          value: {{ .Values.redis.host | default "redis" }}:6379/1
+          value: redis://{{ .Values.redis.host | default "redis" }}:6379/1
         - name: REDIS_SOCKETIO
-          value: {{ .Values.redis.host | default "redis" }}:6379/2
+          value: redis://{{ .Values.redis.host | default "redis" }}:6379/2
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
