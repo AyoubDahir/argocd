@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: erpnext
+  namespace: erpnext-dev
+  labels:
+    app: erpnext
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: erpnext
+      environment: dev
+  template:
+    metadata:
+      labels:
+        app: erpnext
+        environment: dev
+    spec:
+      containers:
+      - name: erpnext
+        image: {{ .Values.image }}
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 9000
+          name: socketio
+        env:
+        - name: FRAPPE_SITE_NAME
+          value: {{ .Values.siteName }}
+        - name: DB_HOST
+          value: {{ .Values.mariadb.host | default "mariadb" }}
+        - name: DB_PORT
+          value: "3306"
+        - name: REDIS_CACHE
+          value: {{ .Values.redis.host | default "redis" }}:6379/0
+        - name: REDIS_QUEUE
+          value: {{ .Values.redis.host | default "redis" }}:6379/1
+        - name: REDIS_SOCKETIO
+          value: {{ .Values.redis.host | default "redis" }}:6379/2
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - name: sites
+          mountPath: /home/frappe/frappe-bench/sites
+      volumes:
+      - name: sites
+        {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: erpnext-sites
+        {{- else }}
+        emptyDir: {}
+        {{- end }}

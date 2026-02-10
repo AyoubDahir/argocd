@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/my-org/erpnext-gitops.git'
+    repoURL: 'git://173.208.208.91/erpnext-gitops'
     targetRevision: HEAD
     path: environments/dev
   destination:
