@@ -1,47 +1,43 @@
-# Dev Environment Values
+# Custom ERPNext Deployment - Dev Environment
 
-# Use the specific custom image built by CI/CD
-image:
-  repository: ghcr.io/my-org/erpnext-custom
-  tag: dev-latest # Or specific SHA
-  pullPolicy: Always
+## ERPNext Configuration
+image: ghcr.io/ayoubdahir/erpnext-custom:latest
 
-# Minimal resources for cost saving
-resources:
-  gunicorn:
-    requests:
-      cpu: 200m
-      memory: 512Mi
-    limits:
-      cpu: 500m
-      memory: 1Gi
-
-# Persistence (Use smaller volumes)
-persistence:
-  worker:
-    size: 2Gi
-  logs:
-    size: 1Gi
-
-# Single replica
-worker:
-  default:
-    replicaCount: 1
-  short:
-    replicaCount: 1
-  long:
-    replicaCount: 1
-  scheduler:
-    replicaCount: 1
-
-ingress:
+## Database Configuration
+mariadb:
   enabled: true
-  hosts:
-    - host: dev.erp.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: erpnext-dev-tls
-      hosts:
-        - dev.erp.example.com
+  auth:
+    rootPassword: changeme123
+    database: erpnext_dev
+    username: erpnext
+    password: erpnext123
+
+## Redis Configuration  
+redis:
+  enabled: true
+
+## Resource Limits (Development)
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "2Gi"
+    cpu: "1000m"
+
+## Persistence
+persistence:
+  enabled: true
+  size: 10Gi
+
+## Site Configuration
+siteName: dev.erp.local
+
+## Custom Apps Installed
+# - healthcare
+# - his  
+# - hrms
+# - insights
+# - rasiin_design
+# - rasiin_hr
+# - frappe_whatsapp
