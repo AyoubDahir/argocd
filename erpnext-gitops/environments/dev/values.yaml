@@ -1,0 +1,47 @@
+# Dev Environment Values
+
+# Use the specific custom image built by CI/CD
+image:
+  repository: ghcr.io/my-org/erpnext-custom
+  tag: dev-latest # Or specific SHA
+  pullPolicy: Always
+
+# Minimal resources for cost saving
+resources:
+  gunicorn:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# Persistence (Use smaller volumes)
+persistence:
+  worker:
+    size: 2Gi
+  logs:
+    size: 1Gi
+
+# Single replica
+worker:
+  default:
+    replicaCount: 1
+  short:
+    replicaCount: 1
+  long:
+    replicaCount: 1
+  scheduler:
+    replicaCount: 1
+
+ingress:
+  enabled: true
+  hosts:
+    - host: dev.erp.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: erpnext-dev-tls
+      hosts:
+        - dev.erp.example.com

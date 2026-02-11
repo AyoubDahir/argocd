@@ -1,0 +1,82 @@
+name: Build and Deploy ERPNext
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    tags: [ "v*" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  update-gitops:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Determine Environment
+        id: env
+        run: |
+          if [[ ${{ github.ref }} == refs/tags/v* ]]; then
+            echo "env=production" >> $GITHUB_OUTPUT
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref }} == "refs/heads/main" ]]; then
+            echo "env=staging" >> $GITHUB_OUTPUT
+            echo "tag=staging-latest" >> $GITHUB_OUTPUT
+          else
+            echo "env=dev" >> $GITHUB_OUTPUT
+            echo "tag=dev-latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout GitOps Repo
+        uses: actions/checkout@v3
+        with:
+          repository: my-org/erpnext-gitops
+          token: ${{ secrets.GITOPS_REPO_TOKEN }}
+      
+      - name: Update Image Tag
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'environments/${{ steps.env.outputs.env }}/values.yaml'
+          propertyPath: 'image.tag'
+          value: ${{ steps.env.outputs.tag }}
+          commitChange: true
+          message: 'Deploy ${{ steps.env.outputs.tag }} to ${{ steps.env.outputs.env }}'
+          branch: main

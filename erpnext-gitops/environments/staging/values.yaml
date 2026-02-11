@@ -1,0 +1,32 @@
+# Staging Environment Values
+
+image:
+  repository: ghcr.io/my-org/erpnext-custom
+  tag: staging-latest
+  pullPolicy: Always
+
+# Moderate resources
+resources:
+  gunicorn:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+# Persistence
+persistence:
+  worker:
+    size: 5Gi
+  logs:
+    size: 2Gi
+
+ingress:
+  enabled: true
+  hosts:
+    - host: staging.erp.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: erpnext-staging-tls
+      hosts:
+        - staging.erp.example.com

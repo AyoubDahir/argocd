@@ -1,0 +1,49 @@
+# Production Environment Values
+
+image:
+  repository: ghcr.io/my-org/erpnext-custom
+  tag: v1.0.0 # SemVer release
+  pullPolicy: IfNotPresent
+
+# High Availability
+mariadb:
+  enabled: false
+  dbHost: "external-mariadb.production.svc.cluster.local"
+
+# Resource Limits
+resources:
+  gunicorn:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+
+# Persistence (High Performance)
+persistence:
+  worker:
+    storageClass: "efs-sc"
+    size: 50Gi
+  logs:
+    storageClass: "gp3"
+    size: 20Gi
+
+# Auto-scaling
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+ingress:
+  enabled: true
+  hosts:
+    - host: erp.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: erpnext-prod-tls
+      hosts:
+        - erp.example.com
