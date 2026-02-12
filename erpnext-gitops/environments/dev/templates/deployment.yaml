@@ -21,6 +21,17 @@ spec:
       containers:
       - name: erpnext
         image: {{ .Values.image }}
+        command: ["/bin/bash", "-c"]
+        args:
+          - >-
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/healthcare &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/his &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/hrms &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/insights &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_design &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_hr &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/frappe_whatsapp &&
+            bench start
         ports:
         - containerPort: 8000
           name: http

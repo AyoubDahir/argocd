@@ -82,6 +82,8 @@ RUN for app in apps/*; do \
     if [ -f "$app/requirements.txt" ]; then \
     pip install --no-cache-dir -r "$app/requirements.txt"; \
     fi; \
+    # Install the app itself in editable mode
+    pip install --no-cache-dir -e "$app"; \
     done
 
 # Build assets
