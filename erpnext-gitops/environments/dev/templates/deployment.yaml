@@ -30,7 +30,7 @@ spec:
         - name: FRAPPE_SITE_NAME
           value: {{ .Values.siteName }}
         - name: DB_HOST
-          value: {{ .Values.mariadb.host | default "mariadb" }}
+          value: "mariadb"
         - name: DB_PORT
           value: "3306"
         - name: REDIS_CACHE
