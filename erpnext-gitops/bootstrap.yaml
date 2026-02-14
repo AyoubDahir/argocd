@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: 'https://github.com/AyoubDahir/argocd.git'
     targetRevision: HEAD
-    path: apps
+    path: erpnext-gitops/apps
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: argocd

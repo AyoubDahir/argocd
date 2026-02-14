@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: 'https://github.com/AyoubDahir/argocd.git'
     targetRevision: HEAD
-    path: environments/production
+    path: erpnext-gitops/environments/production
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: erpnext-production
