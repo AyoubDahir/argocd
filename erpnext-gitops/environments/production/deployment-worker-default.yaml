@@ -37,12 +37,9 @@ spec:
           value: redis://redis:6379/2
         args:
         - |
-          echo "Checking sites..."
-          if [ ! -f /sites-pvc/common_site_config.json ]; then
-            echo "Populating sites volume..."
-            cp -R /home/frappe/frappe-bench/sites/* /sites-pvc/
-            chown -R 1000:1000 /sites-pvc
-          fi
+          echo "Ensuring sites exist..."
+          cp -Rn /home/frappe/frappe-bench/sites/* /sites-pvc/
+          chown -R 1000:1000 /sites-pvc
           
           echo "Patching Redis URLs in common_site_config.json..."
           python3 -c "import json, os; p='/sites-pvc/common_site_config.json'; d=json.load(open(p)); d.update({'redis_cache': os.environ['REDIS_CACHE'], 'redis_queue': os.environ['REDIS_QUEUE'], 'redis_socketio': os.environ['REDIS_SOCKETIO'], 'default_site': os.environ['FRAPPE_SITE_NAME']}); json.dump(d, open(p,'w'), indent=2)"
