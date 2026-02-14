@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: erpnext
+  namespace: erpnext-production
+  labels:
+    app: erpnext
+    environment: production
+spec:
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  - port: 9000
+    targetPort: 9000
+    protocol: TCP
+    name: socketio
+  selector:
+    app: erpnext
+    environment: production
