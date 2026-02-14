@@ -28,12 +28,23 @@ erpnext:
   persistence:
     worker:
       enabled: true
-      size: 10Gi
-      storageClass: "local-path" # Guessing K3s default
+      existingClaim: "erpnext-pvc" # Use the existing PVC to retain data
     logs:
       enabled: true
       size: 5Gi
       storageClass: "local-path"
+
+  # Web/Gunicorn Configuration
+  web:
+    replicaCount: 1
+    args:
+      - /home/frappe/frappe-bench/env/bin/gunicorn
+      - --chdir=/home/frappe/frappe-bench/sites
+      - -b=0.0.0.0:8000
+      - -w=2
+      - -t=120
+      - frappe.app:application
+      - --preload
 
   # Worker Configuration
   worker:
