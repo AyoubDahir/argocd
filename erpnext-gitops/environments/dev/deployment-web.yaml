@@ -60,7 +60,7 @@ spec:
             /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_design &&
             /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_hr &&
             /home/frappe/frappe-bench/env/bin/pip install -e apps/frappe_whatsapp &&
-            bench serve --port 8000 --host 0.0.0.0
+            /home/frappe/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 -w 2 -t 120 frappe.app:application --preload
         ports:
         - containerPort: 8000
           name: http
