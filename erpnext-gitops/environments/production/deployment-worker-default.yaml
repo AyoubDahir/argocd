@@ -27,6 +27,8 @@ spec:
           runAsUser: 0
         command: ["bash", "-c"]
         env:
+        - name: FRAPPE_SITE_NAME
+          value: production.erp.local
         - name: REDIS_CACHE
           value: redis://redis:6379/0
         - name: REDIS_QUEUE
@@ -43,7 +45,7 @@ spec:
           fi
           
           echo "Patching Redis URLs in common_site_config.json..."
-          python3 -c "import json, os; p='/sites-pvc/common_site_config.json'; d=json.load(open(p)); d.update({'redis_cache': os.environ['REDIS_CACHE'], 'redis_queue': os.environ['REDIS_QUEUE'], 'redis_socketio': os.environ['REDIS_SOCKETIO']}); json.dump(d, open(p,'w'), indent=2)"
+          python3 -c "import json, os; p='/sites-pvc/common_site_config.json'; d=json.load(open(p)); d.update({'redis_cache': os.environ['REDIS_CACHE'], 'redis_queue': os.environ['REDIS_QUEUE'], 'redis_socketio': os.environ['REDIS_SOCKETIO'], 'default_site': os.environ['FRAPPE_SITE_NAME']}); json.dump(d, open(p,'w'), indent=2)"
           echo "Patch Complete."
         volumeMounts:
         - name: sites
