@@ -19,53 +19,38 @@ spec:
         app: erpnext
         component: web
     spec:
-      initContainers:
-      - name: populate-sites
-        image: ghcr.io/ayoubdahir/erpnext-custom:latest
-        securityContext:
-          runAsUser: 0
-        command: ["bash", "-c"]
-        args:
-        - |
-          if [ ! -f /sites-pvc/common_site_config.json ]; then
-            echo "Populating sites volume..."
-            cp -R /home/frappe/frappe-bench/sites/* /sites-pvc/
-            chown -R 1000:1000 /sites-pvc
-          else
-            echo "Sites volume already populated."
-          fi
-        volumeMounts:
-        - name: sites
-          mountPath: /sites-pvc
+
       containers:
       - name: web
         image: ghcr.io/ayoubdahir/erpnext-custom:latest
-        command: ["bench", "serve", "--port", "8000"]
-        ports:
-        - containerPort: 8000
-          name: http
-        - containerPort: 9000
-          name: socketio
+        command: ["/bin/bash", "-c"]
+        args:
+        - >-
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/healthcare &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/his &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/hrms &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/insights &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_design &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_hr &&
+            /home/frappe/frappe-bench/env/bin/pip install -e apps/frappe_whatsapp &&
+            bench start
         env:
         - name: FRAPPE_SITE_NAME
           value: dev.erp.local
         - name: DB_HOST
-          value: "mariadb"
+          value: mariadb
         - name: DB_PORT
           value: "3306"
         - name: REDIS_CACHE
-          value: "redis://redis:6379/0"
+          value: redis://redis:6379/0
         - name: REDIS_QUEUE
-          value: "redis://redis:6379/1"
+          value: redis://redis:6379/1
         - name: REDIS_SOCKETIO
-          value: "redis://redis:6379/2"
+          value: redis://redis:6379/2
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
+            memory: "256Mi"
+            cpu: "100m"
         volumeMounts:
         - name: sites
           mountPath: /home/frappe/frappe-bench/sites
@@ -73,4 +58,3 @@ spec:
       - name: sites
         persistentVolumeClaim:
           claimName: erpnext-pvc
-
