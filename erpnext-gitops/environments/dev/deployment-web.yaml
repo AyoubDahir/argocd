@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: erpnext-web
+  name: ihsan-web
   namespace: erpnext-dev
   labels:
     app: erpnext
@@ -22,13 +22,13 @@ spec:
     spec:
       initContainers:
       - name: populate-sites
-        image: ghcr.io/ayoubdahir/erpnext-custom:latest
+        image: frappe/erpnext:v15
         securityContext:
           runAsUser: 0
         command: ["bash", "-c"]
         env:
         - name: FRAPPE_SITE_NAME
-          value: dev.erp.local
+          value: 173.208.208.91
         - name: REDIS_CACHE
           value: redis://redis:6379/0
         - name: REDIS_QUEUE
@@ -49,24 +49,17 @@ spec:
           mountPath: /sites-pvc
       containers:
       - name: web
-        image: ghcr.io/ayoubdahir/erpnext-custom:latest
+        image: frappe/erpnext:v15
         command: ["/bin/bash", "-c"]
         args:
         - >-
-            /home/frappe/frappe-bench/env/bin/pip install -e apps/healthcare &&
-            /home/frappe/frappe-bench/env/bin/pip install -e apps/his &&
-            /home/frappe/frappe-bench/env/bin/pip install -e apps/hrms &&
-            /home/frappe/frappe-bench/env/bin/pip install -e apps/insights &&
-            /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_design &&
-            /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_hr &&
-            /home/frappe/frappe-bench/env/bin/pip install -e apps/frappe_whatsapp &&
-            /home/frappe/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 -w 2 -t 120 frappe.app:application --preload
+/home/frappe/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 -w 2 -t 120 frappe.app:application --preload
         ports:
         - containerPort: 8000
           name: http
         env:
         - name: FRAPPE_SITE_NAME
-          value: dev.erp.local
+          value: 173.208.208.91
         - name: DB_HOST
           value: mariadb
         - name: DB_PORT
