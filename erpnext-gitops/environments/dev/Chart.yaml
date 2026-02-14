@@ -1,0 +1,10 @@
+apiVersion: v2
+name: erpnext-dev
+description: A Helm chart for running ERPNext in Dev
+type: application
+version: 0.1.0
+appVersion: "v15.0.0"
+dependencies:
+  - name: erpnext
+    version: 7.0.39
+    repository: https://helm.erpnext.com/
