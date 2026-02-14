@@ -18,9 +18,26 @@ spec:
         app: erpnext
         environment: dev
     spec:
+      initContainers:
+      - name: populate-sites-volume
+        image: ghcr.io/ayoubdahir/erpnext-custom:latest
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            echo "Initializing sites volume..."
+            if [ -z "$(ls -A /sites-pvc)" ]; then
+               echo "Copying sites..."
+               cp -R /home/frappe/frappe-bench/sites/* /sites-pvc/
+               chown -R frappe:frappe /sites-pvc
+            else
+               echo "Sites volume already populated."
+            fi
+        volumeMounts:
+        - name: sites
+          mountPath: /sites-pvc
       containers:
       - name: erpnext
-        image: {{ .Values.image }}
+        image: ghcr.io/ayoubdahir/erpnext-custom:latest
         command: ["/bin/bash", "-c"]
         args:
           - >-
@@ -39,27 +56,28 @@ spec:
           name: socketio
         env:
         - name: FRAPPE_SITE_NAME
-          value: {{ .Values.siteName }}
+          value: dev.erp.local
         - name: DB_HOST
           value: "mariadb"
         - name: DB_PORT
           value: "3306"
         - name: REDIS_CACHE
-          value: redis://{{ .Values.redis.host | default "redis" }}:6379/0
+          value: redis://redis:6379/0
         - name: REDIS_QUEUE
-          value: redis://{{ .Values.redis.host | default "redis" }}:6379/1
+          value: redis://redis:6379/1
         - name: REDIS_SOCKETIO
-          value: redis://{{ .Values.redis.host | default "redis" }}:6379/2
+          value: redis://redis:6379/2
         resources:
-          {{- toYaml .Values.resources | nindent 10 }}
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
         volumeMounts:
         - name: sites
           mountPath: /home/frappe/frappe-bench/sites
       volumes:
       - name: sites
-        {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
           claimName: erpnext-sites
-        {{- else }}
-        emptyDir: {}
-        {{- end }}
