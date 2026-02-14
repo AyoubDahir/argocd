@@ -8,9 +8,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/my-org/erpnext-gitops.git'
+    repoURL: 'https://github.com/AyoubDahir/argocd.git'
     targetRevision: HEAD
-    path: environments/staging
+    path: erpnext-gitops/environments/staging
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: erpnext-staging
