@@ -30,7 +30,7 @@ erpnext:
       enabled: true
       existingClaim: "erpnext-pvc" # Use the existing PVC to retain data
     logs:
-      enabled: true
+      enabled: false # Disabled to avoid PVC issues, use kubectl logs instead
       size: 5Gi
       storageClass: "local-path"
 
