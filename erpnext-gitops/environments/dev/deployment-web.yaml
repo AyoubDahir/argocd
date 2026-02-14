@@ -17,6 +17,7 @@ spec:
     metadata:
       labels:
         app: erpnext
+        environment: dev
         component: web
     spec:
       initContainers:

@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: erpnext-worker-default
-  namespace: erpnext-dev
+  namespace: erpnext-production
   labels:
     app: erpnext
     component: worker-default
-    environment: dev
+    environment: production
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: erpnext
@@ -17,7 +17,7 @@ spec:
     metadata:
       labels:
         app: erpnext
-        environment: dev
+        environment: production
         component: worker-default
     spec:
       initContainers:
@@ -55,7 +55,7 @@ spec:
 
         env:
         - name: FRAPPE_SITE_NAME
-          value: dev.erp.local
+          value: production.erp.local
         - name: DB_HOST
           value: mariadb
         - name: DB_PORT
@@ -68,8 +68,8 @@ spec:
           value: redis://redis:6379/2
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "100m"
+            memory: "1Gi"
+            cpu: "500m"
         volumeMounts:
         - name: sites
           mountPath: /home/frappe/frappe-bench/sites
