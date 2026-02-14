@@ -60,7 +60,10 @@ spec:
             /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_design &&
             /home/frappe/frappe-bench/env/bin/pip install -e apps/rasiin_hr &&
             /home/frappe/frappe-bench/env/bin/pip install -e apps/frappe_whatsapp &&
-            bench start
+            bench serve --port 8000 --host 0.0.0.0
+        ports:
+        - containerPort: 8000
+          name: http
         env:
         - name: FRAPPE_SITE_NAME
           value: dev.erp.local
@@ -76,8 +79,8 @@ spec:
           value: redis://redis:6379/2
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "100m"
+            memory: "512Mi"
+            cpu: "250m"
         volumeMounts:
         - name: sites
           mountPath: /home/frappe/frappe-bench/sites
