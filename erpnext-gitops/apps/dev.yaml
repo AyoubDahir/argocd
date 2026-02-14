@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'git://173.208.208.91/erpnext-gitops'
+    repoURL: 'https://github.com/AyoubDahir/argocd.git'
     targetRevision: HEAD
     path: environments/dev
   destination:

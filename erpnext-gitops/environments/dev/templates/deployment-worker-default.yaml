@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: erpnext-worker-default
+  namespace: erpnext-dev
+  labels:
+    app: erpnext
+    component: worker-default
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: erpnext
+      component: worker-default
+  template:
+    metadata:
+      labels:
+        app: erpnext
+        component: worker-default
+    spec:
+      initContainers:
+      - name: populate-sites
+        image: ghcr.io/ayoubdahir/erpnext-custom:latest
+        securityContext:
+          runAsUser: 0
+        command: ["bash", "-c"]
+        args:
+        - |
+          if [ ! -f /sites-pvc/common_site_config.json ]; then
+            echo "Populating sites volume..."
+            cp -R /home/frappe/frappe-bench/sites/* /sites-pvc/
+            chown -R 1000:1000 /sites-pvc
+          else
+            echo "Sites volume already populated."
+          fi
+        volumeMounts:
+        - name: sites
+          mountPath: /sites-pvc
+      containers:
+      - name: worker
+        image: ghcr.io/ayoubdahir/erpnext-custom:latest
+        command: ["bench", "worker", "--queue", "default"]
+        env:
+        - name: FRAPPE_SITE_NAME
+          value: dev.erp.local
+        - name: DB_HOST
+          value: "mariadb"
+        - name: DB_PORT
+          value: "3306"
+        - name: REDIS_CACHE
+          value: "redis://redis:6379/0"
+        - name: REDIS_QUEUE
+          value: "redis://redis:6379/1"
+        - name: REDIS_SOCKETIO
+          value: "redis://redis:6379/2"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+        volumeMounts:
+        - name: sites
+          mountPath: /home/frappe/frappe-bench/sites
+      volumes:
+      - name: sites
+        persistentVolumeClaim:
+          claimName: erpnext-pvc
+
