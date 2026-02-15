@@ -1,56 +1,53 @@
-erpnext:
-  image:
-    repository: frappe/erpnext
-    tag: v15
-    pullPolicy: IfNotPresent
+image:
+  repository: frappe/erpnext
+  tag: v15
+  pullPolicy: IfNotPresent
 
-  # Correct site name to match server directory "173.208.208.91"
-  # This is CRITICAL for persistent site access.
-  jobs:
-    createSite:
-      enabled: false  # Disable site creation, we have one
-    migrate:
-      enabled: false  # Manage migrations manually or via CI
-      
-  # Define the ingress
-  ingress:
-    enabled: false # Using NodePort for now per user setup? Or enable ingress? 
-    # Current setup uses separate Ingress resource managed by user?
-    # Let's keep it simple. Service Type NodePort is easier.
+# Correct site name to match server directory "173.208.208.91"
+# This is CRITICAL for persistent site access.
+jobs:
+  createSite:
+    enabled: false  # Disable site creation, we have one
+  migrate:
+    enabled: false  # Manage migrations manually or via CI
+    
+# Define the ingress
+ingress:
+  enabled: false # Using NodePort for now per user setup
 
-  # Service Configuration
-  service:
-    type: NodePort
-    port: 8000
-    externalPort: 30779 # Maps to the NodePort we are using
+# Service Configuration
+service:
+  type: NodePort
+  port: 8000
+  externalPort: 30779 # Maps to the NodePort we are using
 
-  # Persistence
-  persistence:
-    worker:
-      enabled: true
-      existingClaim: "erpnext-pvc" # Use the existing PVC to retain data
-    logs:
-      enabled: false # Disabled to avoid PVC issues, use kubectl logs instead
-      size: 5Gi
-      storageClass: "local-path"
-
-  # Web/Gunicorn Configuration
-  web:
-    replicaCount: 1
-    args:
-      - /home/frappe/frappe-bench/env/bin/gunicorn
-      - --chdir=/home/frappe/frappe-bench/sites
-      - -b=0.0.0.0:8000
-      - -w=2
-      - -t=120
-      - frappe.app:application
-      - --preload
-
-  # Worker Configuration
+# Persistence
+persistence:
   worker:
     enabled: true
-    # Provide env vars if needed
-    
+    existingClaim: "erpnext-pvc" # Use the existing PVC to retain data
+  logs:
+    enabled: false # Disabled to avoid PVC issues, use kubectl logs instead
+    size: 5Gi
+    storageClass: "local-path"
+
+# Web/Gunicorn Configuration
+web:
+  replicaCount: 1
+  args:
+    - /home/frappe/frappe-bench/env/bin/gunicorn
+    - --chdir=/home/frappe/frappe-bench/sites
+    - -b=0.0.0.0:8000
+    - -w=2
+    - -t=120
+    - frappe.app:application
+    - --preload
+
+# Worker Configuration
+worker:
+  enabled: true
+  # Provide env vars if needed
+
 # Global Bitnami Registry Override
 global:
   imageRegistry: public.ecr.aws
@@ -79,12 +76,9 @@ redis:
   # Database
   dbHost: mariadb
   dbPort: 3306
-  dbName: _173_208_208_91 # This might be the DB name derived from site? 
-  # Actually, frappe connects via site_config.json. 
-  # We just need to ensure env vars are set correctly.
-
+  dbName: _173_208_208_91 
+  
   # Environment Variables for all pods
-  # This is where we inject the site name
   env:
     - name: FRAPPE_SITE_NAME
       value: "173.208.208.91"
