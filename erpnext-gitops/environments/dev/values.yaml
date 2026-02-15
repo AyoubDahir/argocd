@@ -7,9 +7,9 @@ erpnext:
   # Correct site name to match server directory "173.208.208.91"
   jobs:
     createSite:
-      enabled: false
+      enabled: true
     migrate:
-      enabled: false
+      enabled: true
     
   ingress:
     enabled: false
