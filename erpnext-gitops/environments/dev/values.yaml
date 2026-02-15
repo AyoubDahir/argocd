@@ -51,9 +51,13 @@ erpnext:
     enabled: true
     # Provide env vars if needed
     
-  # Scheduler Configuration
-  scheduler:
-    enabled: true
+# Global Bitnami Registry Override
+global:
+  imageRegistry: public.ecr.aws
+
+# Scheduler Configuration
+scheduler:
+  enabled: true
 
 # Database Mirror (AWS Public ECR to avoid Docker Hub Rate Limits)
 mariadb:
