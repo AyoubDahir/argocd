@@ -1,52 +1,50 @@
-image:
-  repository: frappe/erpnext
-  tag: v15
-  pullPolicy: IfNotPresent
+erpnext:
+  image:
+    repository: frappe/erpnext
+    tag: v15
+    pullPolicy: IfNotPresent
 
-# Correct site name to match server directory "173.208.208.91"
-# This is CRITICAL for persistent site access.
-jobs:
-  createSite:
-    enabled: false  # Disable site creation, we have one
-  migrate:
-    enabled: false  # Manage migrations manually or via CI
+  # Correct site name to match server directory "173.208.208.91"
+  jobs:
+    createSite:
+      enabled: false
+    migrate:
+      enabled: false
     
-# Define the ingress
-ingress:
-  enabled: false # Using NodePort for now per user setup
+  ingress:
+    enabled: false
 
-# Service Configuration
-service:
-  type: NodePort
-  port: 8000
-  externalPort: 30779 # Maps to the NodePort we are using
+  # Service Configuration (Upstream Service - ClusterIP)
+  service:
+    type: NodePort
+    port: 8000
+    externalPort: 30779
 
-# Persistence
-persistence:
+  # Persistence
+  persistence:
+    worker:
+      enabled: true
+      existingClaim: "erpnext-pvc"
+    logs:
+      enabled: false
+      size: 5Gi
+      storageClass: "local-path"
+
+  # Web/Gunicorn Configuration
+  web:
+    replicaCount: 1
+    args:
+      - /home/frappe/frappe-bench/env/bin/gunicorn
+      - --chdir=/home/frappe/frappe-bench/sites
+      - -b=0.0.0.0:8000
+      - -w=2
+      - -t=120
+      - frappe.app:application
+      - --preload
+
+  # Worker Configuration
   worker:
     enabled: true
-    existingClaim: "erpnext-pvc" # Use the existing PVC to retain data
-  logs:
-    enabled: false # Disabled to avoid PVC issues, use kubectl logs instead
-    size: 5Gi
-    storageClass: "local-path"
-
-# Web/Gunicorn Configuration
-web:
-  replicaCount: 1
-  args:
-    - /home/frappe/frappe-bench/env/bin/gunicorn
-    - --chdir=/home/frappe/frappe-bench/sites
-    - -b=0.0.0.0:8000
-    - -w=2
-    - -t=120
-    - frappe.app:application
-    - --preload
-
-# Worker Configuration
-worker:
-  enabled: true
-  # Provide env vars if needed
 
 # Global Bitnami Registry Override
 global:
@@ -56,7 +54,7 @@ global:
 scheduler:
   enabled: true
 
-# Database Mirror (AWS Public ECR to avoid Docker Hub Rate Limits)
+# Database Mirror
 mariadb:
   image:
     registry: public.ecr.aws
@@ -69,16 +67,13 @@ redis:
     repository: bitnami/redis
     tag: 6.2.12-debian-11-r0
 
-  # SocketIO
   socketio:
     enabled: true
 
-  # Database
   dbHost: mariadb
   dbPort: 3306
   dbName: _173_208_208_91 
   
-  # Environment Variables for all pods
   env:
     - name: FRAPPE_SITE_NAME
       value: "173.208.208.91"
