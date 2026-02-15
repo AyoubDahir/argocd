@@ -74,16 +74,29 @@ redis:
   dbPort: 3306
   dbName: _173_208_208_91 
   
+    - name: REDIS_SOCKETIO
+      value: "redis://redis:6379/2"
+
+# Env for Web Pods
+web:
+  replicaCount: 1
+  args: [ ... ] # Keep args as is
   env:
     - name: FRAPPE_SITE_NAME
       value: "173.208.208.91"
-    - name: DB_HOST
-      value: "mariadb"
-    - name: DB_PORT
-      value: "3306"
-    - name: REDIS_CACHE
-      value: "redis://redis:6379/0"
-    - name: REDIS_QUEUE
-      value: "redis://redis:6379/1"
-    - name: REDIS_SOCKETIO
-      value: "redis://redis:6379/2"
+  # ...
+
+# Env for Worker Pods
+worker:
+  enabled: true
+  env:
+    - name: FRAPPE_SITE_NAME
+      value: "173.208.208.91"
+
+# Env for Job (createSite)
+jobs:
+  createSite:
+    enabled: true
+    env:
+      - name: FRAPPE_SITE_NAME
+        value: "173.208.208.91"
