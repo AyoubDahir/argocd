@@ -54,6 +54,19 @@ erpnext:
   # Scheduler Configuration
   scheduler:
     enabled: true
+
+  # Database Mirror (AWS Public ECR to avoid Docker Hub Rate Limits)
+  mariadb:
+    image:
+      registry: public.ecr.aws
+      repository: bitnami/mariadb
+      tag: 10.6.12-debian-11-r0
+  
+  redis:
+    image:
+      registry: public.ecr.aws
+      repository: bitnami/redis
+      tag: 6.2.12-debian-11-r0
     
   # SocketIO
   socketio:
