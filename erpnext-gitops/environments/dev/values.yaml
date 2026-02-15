@@ -74,8 +74,6 @@ redis:
   dbPort: 3306
   dbName: _173_208_208_91 
   
-    - name: REDIS_SOCKETIO
-      value: "redis://redis:6379/2"
 
 # Env for Web Pods
 web:
